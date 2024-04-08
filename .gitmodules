@@ -1,0 +1,3 @@
+[submodule "data/resources/external/7zr"]
+	path = data/resources/external/7zr
+	url = https://github.com/ip7z/7zip
