@@ -1,4 +1,4 @@
-; Script to fixes and enhancements for GTA IV Complete Edition.
+; Script to install fixes and enhancements for GTA IV Complete Edition.
 
 VIProductVersion "1.0.0.0"
 VIAddVersionKey "ProductName" "Fixer for Grand Theft Auto IV Complete Edition"
@@ -17,8 +17,6 @@ Unicode True
 
 BrandingText ""
 
-;Icon "icon.ico"
-
 CRCCheck on
 
 !include FileFunc.nsh
@@ -36,7 +34,6 @@ Name "Fixer for Grand Theft Auto IV Complete Edition"
 ; The file to write
 OutFile "..\Binaries\data\main.exe"
 
-; Request application privileges for Windows Vista and higher
 RequestExecutionLevel admin
 
 Function RelGotoPage
@@ -67,6 +64,7 @@ Var forceolddxvk
 Var forceolddxvkstate
 Var setaspectratio
 Var setaspectratiostate
+Var rrInstallStatus
 
 
 ;--------------------------------
@@ -102,7 +100,7 @@ Var setaspectratiostate
 	!define MUI_DIRECTORYPAGE_TEXT_DESTINATION "Select the folder where GTAIV.exe is located"
 	; Finish page
 	!define MUI_FINISHPAGE_TITLE "Installation complete"
-	!define MUI_FINISHPAGE_TEXT "You can now launch the game! Press close to exit the installer."
+	!define MUI_FINISHPAGE_TEXT "You can now launch the game! Press finish to exit the installer."
 
 !define MUI_PAGE_CUSTOMFUNCTION_SHOW DPIbanner
 !insertmacro MUI_PAGE_WELCOME
@@ -181,15 +179,13 @@ Section "-ExeCheck"
 SectionEnd
 
 Section "FusionFix" ff
-	
-	NScurl::http GET "https://www.7-zip.org/a/7zr.exe" "$EXEDIR\Resources\External\7zr.exe" /CANCEL /RESUME /END
 	SectionIn RO
 	
 	SetOutPath $INSTDIR
 
 	NScurl::http GET "http://github.com/ThirteenAG/GTAIV.EFLC.FusionFix/releases/latest/download/GTAIV.EFLC.FusionFix.zip" "$EXEDIR\Resources\.temp\FusionFix.zip" /CANCEL /RESUME /END
 	
-	nsExec::Exec '"$EXEDIR\Resources\External\7zr.exe" x "$EXEDIR\Resources\.temp\FusionFix.zip"'
+	nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\FusionFix.zip"'
 
 SectionEnd
 
@@ -208,14 +204,13 @@ SectionEnd
   		ClearErrors
   		nsJSON::Get "assets" /index 0 /index 12 /end
   		${If} ${Errors}
-    		DetailPrint `error, probably rate limited.`
-			Abort
+    		DetailPrint `error, probably rate limited. won't install dxvk`
 		${Else}
 			Pop $0
   		${EndIf}
 		NScurl::http GET "$0" "$EXEDIR\Resources\.temp\DXVK.tar.gz" /CANCEL /RESUME /END
 		SetOutPath "$EXEDIR\Resources\.temp"
-		nsExec::Exec '"$EXEDIR\Resources\External\7zr.exe" x "$EXEDIR\Resources\.temp\DXVK.tar.gz" -odxvk'
+		nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\DXVK.tar.gz" -odxvk'
 		SetOutPath "$INSTDIR"
 		CopyFiles "$EXEDIR\Resources\.temp\dxvk\x32\d3d9.dll" "$INSTDIR" 
 	${ElseIf} $9 == "2"
@@ -223,8 +218,8 @@ SectionEnd
 		DetailPrint "Latest version of DXVK is not supported, however older async version is. Installing..."
 		NScurl::http GET "https://github.com/Sporif/dxvk-async/releases/download/1.10.3/dxvk-async-1.10.3.tar.gz" "$EXEDIR\Resources\.temp\DXVK.tar.gz" /CANCEL /RESUME /END
 		SetOutPath "$EXEDIR\Resources\.temp"
-		nsExec::Exec '"$EXEDIR\Resources\External\7zr.exe" x "$EXEDIR\Resources\.temp\DXVK.tar.gz" -odxvk'
-		nsExec::Exec '"$EXEDIR\Resources\External\7zr.exe" x "$EXEDIR\Resources\.temp\dxvk\dxvk-async-1.10.3.tar" -odxvk'
+		nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\DXVK.tar.gz" -odxvk'
+		nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\dxvk\dxvk-async-1.10.3.tar" -odxvk'
 		SetOutPath "$INSTDIR"
 		CopyFiles "$EXEDIR\Resources\.temp\dxvk\dxvk-async-1.10.3\x32\d3d9.dll" "$INSTDIR" 
 	${Else}
@@ -249,78 +244,86 @@ SectionEnd
 	SectionEnd
 
 Section "Various Fixes" vf
-
-	NScurl::http GET "http://github.com/ICantReadYourMind/IVFixer/releases/latest/download/temporaryVariousFixes.zip" "$EXEDIR\Resources\.temp\VariousFixes.zip"
-	nsExec::Exec '"$EXEDIR\Resources\External\7zr.exe" x "$EXEDIR\Resources\.temp\VariousFixes.zip"'
+	NScurl::http GET "https://api.github.com/repos/valentyn-l/GTAIV.EFLC.Various.Fixes/releases/latest" "$EXEDIR\Resources\.temp\vf.json" /SILENT
+	nsJSON::Set /file "$EXEDIR\Resources\.temp\vf.json"
+  	ClearErrors
+  	nsJSON::Get "assets" /index 1 /index 12 /end
+  	${If} ${Errors}
+    	DetailPrint `error, probably rate limited. won't install various fixes`
+	${Else}
+		Pop $0
+  	${EndIf}
+	NScurl::http GET "$0" "$EXEDIR\Resources\.temp\VariousFixes.zip" /CANCEL /RESUME /END
+	nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\VariousFixes.zip"'
 
 SectionEnd
 
 Section "Project2DFX" p2dfx
 	NScurl::http GET "https://github.com/ThirteenAG/III.VC.SA.IV.Project2DFX/releases/download/gtaiv/IV.Project2DFX.zip" "$EXEDIR\Resources\.temp\p2dfx.zip" /CANCEL /RESUME /END
 	SetOutPath "$INSTDIR\plugins"
-	nsExec::Exec '"$EXEDIR\Resources\External\7zr.exe" x "$EXEDIR\Resources\.temp\p2dfx.zip"'
+	nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\p2dfx.zip"'
 	SetOutPath $INSTDIR
 	Delete "$INSTDIR\plugins\readme.txt"
 SectionEnd
 
-Section "Ash_735's Higher Resolution Vehicle Pack"
+Section "Ash_735's Higher Resolution Vehicle Pack" vp
 NScurl::http GET "https://files.gamebanana.com/mods/complete_edition_vehicle_pack.zip" "$EXEDIR\Resources\.temp\vehiclepack.zip" /CANCEL /RESUME /END
 SetOutPath "$INSTDIR\update"
-nsExec::Exec '"$EXEDIR\Resources\External\7zr.exe" x "$EXEDIR\Resources\.temp\vehiclepack.zip"'
+nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\vehiclepack.zip"'
 SetOutPath "$INSTDIR"
 WriteINIStr "$INSTDIR\plugins\GTAIV.EFLC.FusionFix.ini" BudgetedIV VehicleBudget 144000000
 SectionEnd
 
-Section "Ash_735's Higher Resolution Miscellaneous Pack"
+Section "Ash_735's Higher Resolution Miscellaneous Pack" mp
 NScurl::http GET "https://files.gamebanana.com/mods/ash_hires_misc11.zip" "$EXEDIR\Resources\.temp\miscpack.zip" /CANCEL /RESUME /END
-nsExec::Exec '"$EXEDIR\Resources\External\7zr.exe" x "$EXEDIR\Resources\.temp\miscpack.zip"'
+nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\miscpack.zip"'
 SectionEnd
 
 SectionGroup /e "Console Visuals"
 
 Section "Fusion Console Vegetation"
 NScurl::http GET "https://github.com/Tomasak/Console-Visuals/releases/download/release/Fusion.Console.Vegetation.zip" "$EXEDIR\Resources\.temp\Fusion.Console.Vegetation.zip" /CANCEL /RESUME /END
-nsExec::Exec '"$EXEDIR\Resources\External\7zr.exe" x "$EXEDIR\Resources\.temp\Fusion.Console.Vegetation.zip"'
+nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\Fusion.Console.Vegetation.zip"'
 SectionEnd
 
 Section "Console Select Menu"
 NScurl::http GET "https://github.com/gennariarmando/iv-console-select-menu/releases/latest/download/ConsoleSelectMenuIV.zip" "$EXEDIR\Resources\.temp\Console.Select.Menu.zip" /CANCEL /RESUME /END
-nsExec::Exec '"$EXEDIR\Resources\External\7zr.exe" x "$EXEDIR\Resources\.temp\Console.Select.Menu.zip"'
+nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\Console.Select.Menu.zip"'
 SectionEnd
 
 Section "Console Peds"
 NScurl::http GET "https://github.com/Tomasak/Console-Visuals/releases/download/release/Console.Peds.zip" "$EXEDIR\Resources\.temp\Console.Peds.zip" /CANCEL /RESUME /END
-nsExec::Exec '"$EXEDIR\Resources\External\7zr.exe" x "$EXEDIR\Resources\.temp\Console.Peds.zip"'
+nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\Console.Peds.zip"'
 SectionEnd
 
 Section "Console Loading Screens"
 NScurl::http GET "https://github.com/Tomasak/Console-Visuals/releases/download/release/Console.Loading.Screens.zip" "$EXEDIR\Resources\.temp\Console.Loading.Screens.zip" /CANCEL /RESUME /END
-nsExec::Exec '"$EXEDIR\Resources\External\7zr.exe" x "$EXEDIR\Resources\.temp\Console.Loading.Screens.zip"'
+nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\Console.Loading.Screens.zip"'
 SectionEnd
 
 Section "Console Lights"
 NScurl::http GET "https://github.com/Tomasak/Console-Visuals/releases/download/release/Console.Lights.zip" "$EXEDIR\Resources\.temp\Console.Lights.zip" /CANCEL /RESUME /END
-nsExec::Exec '"$EXEDIR\Resources\External\7zr.exe" x "$EXEDIR\Resources\.temp\Console.Lights.zip"'
+nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\Console.Lights.zip"'
 SectionEnd
 
 Section /o "Console HUD"
 NScurl::http GET "https://github.com/Tomasak/Console-Visuals/releases/download/release/Console.HUD.zip" "$EXEDIR\Resources\.temp\Console.HUD.zip" /CANCEL /RESUME /END
-nsExec::Exec '"$EXEDIR\Resources\External\7zr.exe" x "$EXEDIR\Resources\.temp\Console.HUD.zip"'
+nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\Console.HUD.zip"'
 SectionEnd
 
 Section "Console Fences"
 NScurl::http GET "https://github.com/Tomasak/Console-Visuals/releases/download/release/Console.Fences.zip" "$EXEDIR\Resources\.temp\Console.Fences.zip" /CANCEL /RESUME /END
-nsExec::Exec '"$EXEDIR\Resources\External\7zr.exe" x "$EXEDIR\Resources\.temp\Console.Fences.zip"'
+nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\Console.Fences.zip"'
 SectionEnd
 
 Section "Console Clothing"
 NScurl::http GET "https://github.com/Tomasak/Console-Visuals/releases/download/release/Console.Clothing.zip" "$EXEDIR\Resources\.temp\Console.Clothing.zip" /CANCEL /RESUME /END
-nsExec::Exec '"$EXEDIR\Resources\External\7zr.exe" x "$EXEDIR\Resources\.temp\Console.Clothing.zip"'
+nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\Console.Clothing.zip"'
 SectionEnd
 
 Section "Console Anims"
 NScurl::http GET "https://github.com/Tomasak/Console-Visuals/releases/download/release/Console.Anims.zip" "$EXEDIR\Resources\.temp\Console.Anims.zip" /CANCEL /RESUME /END
-nsExec::Exec '"$EXEDIR\Resources\External\7zr.exe" x "$EXEDIR\Resources\.temp\Console.Anims.zip"'
+nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\Console.Anims.zip"'
 SectionEnd
 
 SectionGroupEnd
@@ -328,33 +331,33 @@ SectionGroupEnd
 SectionGroup /e "Radio Restoration" grp1
 Section "-Base Files" radiorestorer
 	SetOutPath $INSTDIR
-
-	SectionIn RO
    ;Archive hash check
 	
 	redownload:
+	
+	RMDir /r "$EXEDIR\Resources\Radio Restorer\"
 	
 	NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/data/data1.dat" "$EXEDIR\Resources\Radio Restorer\data1.dat" /CANCEL /RESUME /END
 	NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/data/patch1.dat" "$EXEDIR\Resources\Radio Restorer\patch1.dat" /CANCEL /RESUME /END
 	NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/data/patch2.dat" "$EXEDIR\Resources\Radio Restorer\patch2.dat" /CANCEL /RESUME /END
 	NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/data/hashes.ini" "$EXEDIR\Resources\Radio Restorer\hashes.ini" /CANCEL /RESUME /END
   
-	DetailPrint "Checking hashes of archives..."
-	FindFirst $6 $7 "$EXEDIR\Resources\Radio Restorer\*.dat"
-	loop:
-	StrCmp $7 "" done
-	HashInfo::GetFileCRCHash "CRC-32" "$EXEDIR\Resources\Radio Restorer\$7"
-	Pop $8
-	ReadINIStr $9 "$EXEDIR\Resources\Radio Restorer\hashes.ini" "Archives" "$7"
-	${If} $9 != $8
-		MessageBox MB_OK "Hashes of DATs incorrect, please try to extract the archive again or redownload it! Press OK to close the installer." IDYES redownload IDNO installerfail_1
-	${EndIf}
-	DetailPrint "Hash of $7 is $8 [CORRECT]"
-	FindNext $6 $7
-	Goto loop
-	done:
-	FindClose $0
-  
+	; DetailPrint "Checking hashes of archives..."
+	; FindFirst $6 $7 "$EXEDIR\Resources\Radio Restorer\*.dat"
+	; loop:
+	; StrCmp $7 "" done
+	; HashInfo::GetFileCRCHash "CRC-32" "$EXEDIR\Resources\Radio Restorer\$7"
+	; Pop $8
+	; ReadINIStr $9 "$EXEDIR\Resources\Radio Restorer\hashes.ini" "Archives" "$7"
+	; ${If} $9 != $8
+		; MessageBox MB_RETRYCANCEL "Hashes of DATs incorrect, press yes to redownload archives or cancel to cancel the installation of radio restorer" IDRETRY redownload IDCANCEL installerfail_1
+	; ${EndIf}
+	; DetailPrint "Hash of $7 is $8 [CORRECT]"
+	; FindNext $6 $7
+	; Goto loop
+	; done:
+	; FindClose $0
+	
   ${If} ${FileExists} "$INSTDIR\update\pc\audio\config\game.dat16"
   MessageBox MB_YESNO "Radio files detected in overload folder! It is likely an older version of the Radio Restoration mod was installed. If you want to remove old files, press yes. WARNING: This will also remove previously installed audio mods." IDYES true IDNO false
   true:
@@ -366,6 +369,8 @@ Section "-Base Files" radiorestorer
   false:
 	DetailPrint "Keeping old files may cause issues in the future."
   ${EndIf}
+  
+    nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\Radio Restorer\data1.dat"'
   
   next:
   
@@ -384,15 +389,13 @@ Section "-Base Files" radiorestorer
 	DetailPrint "CRC of one or more RPF files is incorrect!"
   ${EndIf}
   
-  nsExec::Exec '"$EXEDIR\Resources\External\7zr.exe" x "$EXEDIR\Resources\Radio Restorer\data1.dat"'
-  
   retrydeltapatch:
   DetailPrint "Patching radio_beat_95.rpf..."
   DetailPrint "Patching radio_ny_classics.rpf..."
   vpatch::vpatchfile "$EXEDIR\Resources\Radio Restorer\patch1.dat" "$INSTDIR\pc\audio\sfx\radio_beat_95.rpf" "$INSTDIR\update\pc\audio\sfx\radio_beat_95.rpf"
   vpatch::vpatchfile "$EXEDIR\Resources\Radio Restorer\patch2.dat" "$INSTDIR\pc\audio\sfx\radio_ny_classics.rpf" "$INSTDIR\update\pc\audio\sfx\radio_ny_classics.rpf"
   
-  ReadINIStr $8 "$EXEDIR\Resources\hashes.ini" "RPFs" "radio_beat_95.rpf"
+  ReadINIStr $8 "$EXEDIR\Resources\Radio Restorer\hashes.ini" "RPFs" "radio_beat_95.rpf"
   HashInfo::GetFileCRCHash "CRC-32" "$INSTDIR\update\pc\audio\sfx\radio_beat_95.rpf"
   Pop $9
   ${If} "$8" != "$9"
@@ -401,24 +404,26 @@ Section "-Base Files" radiorestorer
   ${EndIf}
   DetailPrint "Hash of radio_beat_95.rpf = $8 [CORRECT]"
   
-  ReadINIStr $8 "$EXEDIR\Resources\hashes.ini" "RPFs" "radio_ny_classics.rpf"
+  ReadINIStr $8 "$EXEDIR\Resources\Radio Restorer\hashes.ini" "RPFs" "radio_ny_classics.rpf"
   HashInfo::GetFileCRCHash "CRC-32" "$INSTDIR\update\pc\audio\sfx\radio_ny_classics.rpf"
   Pop $9
   ${If} "$8" != "$9"
 	MessageBox MB_RETRYCANCEL "CRC of one or more patched RPF files is incorrect!" IDRETRY retrydeltapatch IDCANCEL installerfail_2
 	DetailPrint "CRC of one or more patched RPF files is incorrect!"
   ${EndIf}
-  DetailPrint "Hash of radio_beat_95.rpf = $8 [CORRECT]"
+  DetailPrint "Hash of radio_ny_classics.rpf = $8 [CORRECT]"
+  StrCpy $rrInstallStatus "1"
   
+  Goto downgradeend
+  
+  installerfail_1:
+  DetailPrint "Cancelling installation."
+  StrCpy $rrInstallStatus "0"
   Goto downgradeend
   
   retryfolder:
   StrCpy $R9 -1
-	Call RelGotoPage
-	Abort
-  
-  installerfail_1:
-  DetailPrint "Cancelling installation."
+  Call RelGotoPage
   Abort
 
   installerfail_2:
@@ -431,14 +436,11 @@ Section "-Base Files" radiorestorer
   Delete $INSTDIR\update\tbogt\pc\e2_radio.xml
   Delete $INSTDIR\update\tbogt\pc\e2_audio.xml
   Delete $INSTDIR\update\tlad\pc\e1_radio.xml
-  DetailPrint "Installation cancelled. All files related to radio downgrader deleted. This has also deleted any previous audio/radio mods you may have had..."
-  Abort
+  StrCpy $rrInstallStatus "0"
+  DetailPrint "Radio Restorer nstallation failed. All files related to radio restorer have been deleted. This has also deleted any previous audio/radio mods you may have had..."
   
   downgradeend:
 SectionEnd
-
-; Section "Do not install" g1o0
-; SectionEnd
 
 Section /o "Do not install" g1o0
 SectionEnd
@@ -454,47 +456,48 @@ SectionEnd
 Section  "Restored beta songs" g1o3
 SectionEnd
 
-Section "-Options"
-
-	${If} ${SectionIsSelected} ${g1o1}
-	${AndIf} ${SectionIsSelected} ${g1o2}
-	${AndIf} ${SectionIsSelected} ${g1o3}
-		NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/data/opALL.dat" "$EXEDIR\Resources\Radio Restorer\opALL.dat" /CANCEL /RESUME /END
-		nsExec::Exec '"$EXEDIR\Resources\External\7zr.exe" x "$EXEDIR\Resources\Radio Restorer\opALL.dat"'
-	${EndIf}
-	
-	${If} ${SectionIsSelected} ${g1o1}
-	${AndIf} ${SectionIsSelected} ${g1o2}
-	${AndIfNot} ${SectionIsSelected} ${g1o3}
-	NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/data/opCLASSIC.dat" "$EXEDIR\Resources\Radio Restorer\opCLASSIC.dat" /CANCEL /RESUME /END
-		nsExec::Exec '"$EXEDIR\Resources\External\7zr.exe" x "$EXEDIR\Resources\Radio Restorer\opCLASSIC.dat"'
-	${EndIf}
-	
-	${If} ${SectionIsSelected} ${g1o1}
-	${AndIfNot} ${SectionIsSelected} ${g1o2}
-	${AndIfNot} ${SectionIsSelected} ${g1o3}
-		NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/data/opVANILLA.dat" "$EXEDIR\Resources\Radio Restorer\opVANILLA.dat" /CANCEL /RESUME /END
-		nsExec::Exec '"$EXEDIR\Resources\External\7zr.exe" x "$EXEDIR\Resources\Radio Restorer\opVANILLA.dat"'
-	${EndIf}
-	
-	${If} ${SectionIsSelected} ${g1o1}
-	${AndIf} ${SectionIsSelected} ${g1o3}
-	${AndIfNot} ${SectionIsSelected} ${g1o2}
-		NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/data/opVANILLABETA.dat" "$EXEDIR\Resources\Radio Restorer\opVANILLABETA.dat" /CANCEL /RESUME /END
-		nsExec::Exec '"$EXEDIR\Resources\External\7zr.exe" x "$EXEDIR\Resources\Radio Restorer\opVANILLABETA.dat"'
+Section "-Options" opRR
+	${If} $rrInstallStatus == "1"
+		${If} ${SectionIsSelected} ${g1o1}
+		${AndIf} ${SectionIsSelected} ${g1o2}
+		${AndIf} ${SectionIsSelected} ${g1o3}
+			NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/data/opALL.dat" "$EXEDIR\Resources\Radio Restorer\opALL.dat" /CANCEL /RESUME /END
+			nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\Radio Restorer\opALL.dat"'
+		${EndIf}
+		
+		${If} ${SectionIsSelected} ${g1o1}
+		${AndIf} ${SectionIsSelected} ${g1o2}
+		${AndIfNot} ${SectionIsSelected} ${g1o3}
+		NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/data/opCLASSIC.dat" "$EXEDIR\Resources\Radio Restorer\opCLASSIC.dat" /CANCEL /RESUME /END
+			nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\Radio Restorer\opCLASSIC.dat"'
+		${EndIf}
+		
+		${If} ${SectionIsSelected} ${g1o1}
+		${AndIfNot} ${SectionIsSelected} ${g1o2}
+		${AndIfNot} ${SectionIsSelected} ${g1o3}
+			NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/data/opVANILLA.dat" "$EXEDIR\Resources\Radio Restorer\opVANILLA.dat" /CANCEL /RESUME /END
+			nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\Radio Restorer\opVANILLA.dat"'
+		${EndIf}
+		
+		${If} ${SectionIsSelected} ${g1o1}
+		${AndIf} ${SectionIsSelected} ${g1o3}
+		${AndIfNot} ${SectionIsSelected} ${g1o2}
+			NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/data/opVANILLABETA.dat" "$EXEDIR\Resources\Radio Restorer\opVANILLABETA.dat" /CANCEL /RESUME /END
+			nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\Radio Restorer\opVANILLABETA.dat"'
+		${EndIf}
 	${EndIf}
 	
 SectionEnd
 
 Section /o "Split radios" g1o4
 	NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/data/opSPLITbase.dat" "$EXEDIR\Resources\Radio Restorer\opSPLITbase.dat" /CANCEL /RESUME /END
-	nsExec::Exec '"$EXEDIR\Resources\External\7zr.exe" x "$EXEDIR\Resources\Radio Restorer\opSPLITbase.dat"'
+	nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\Radio Restorer\opSPLITbase.dat"'
 	${If} ${SectionIsSelected} ${g1o3}
 		NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/data/opSPLITBETA.dat" "$EXEDIR\Resources\Radio Restorer\opSPLITBETA.dat" /CANCEL /RESUME /END
-		nsExec::Exec '"$EXEDIR\Resources\External\7zr.exe" x "$EXEDIR\Resources\Radio Restorer\opSPLITBETA.dat"'
+		nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\Radio Restorer\opSPLITBETA.dat"'
 	${Else}
 		NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/data/opSPLITVANILLA.dat" "$EXEDIR\Resources\Radio Restorer\opSPLITVANILLA.dat" /CANCEL /RESUME /END
-		nsExec::Exec '"$EXEDIR\Resources\External\7zr.exe" x "$EXEDIR\Resources\Radio Restorer\opSPLITVANILLA.dat"'
+		nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\Radio Restorer\opSPLITVANILLA.dat"'
 	${EndIf}
 SectionEnd
 
@@ -663,7 +666,10 @@ LangString desc_g1o3 ${LANG_ENGLISH} "This option restores 4 cut songs with work
 LangString desc_g1o4 ${LANG_ENGLISH} "Removes IV songs in Episodes on shared radios and vice versa. Makes interiors and lap dance in EFLC play same songs/radios as vanilla EFLC. DOES NOT REMOVE IV EXCLUSIVE STATIONS IN EPISODES AND VICE VERSA"
 LangString desc_ff ${LANG_ENGLISH} "FusionFix is a modification for the game that fixes multiple game bugs, adds a file overloader (required for this mod) and more."
 LangString desc_dxvk ${LANG_ENGLISH} "DXVK translates DirectX calls to Vulkan. It has been reported to drastically improve performance in GTA IV. However, this isn't the case for all systems, so it might not work."
-LangString desc_p2dfx ${LANG_ENGLISH} "Project2DFX is a plugin that adds an LOD-light effect to game's world, making the LOD-word look much better."
+LangString desc_p2dfx ${LANG_ENGLISH} "Project2DFX is a plugin that adds an LOD-light effect to game's world, making the LOD-world look much better."
+LangString desc_vf ${LANG_ENGLISH} "Various Fixes is a mod that fixes various bugs in the game."
+LangString desc_vp ${LANG_ENGLISH} "This mod adds higher resolution textures to all the vehicles in the game and its DLCs."
+LangString desc_mp ${LANG_ENGLISH} "This mod adds higher resolution textures to various objects such as vending machines."
 
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
   !insertmacro MUI_DESCRIPTION_TEXT ${g1o1} $(desc_g1o1)
@@ -673,5 +679,7 @@ LangString desc_p2dfx ${LANG_ENGLISH} "Project2DFX is a plugin that adds an LOD-
   !insertmacro MUI_DESCRIPTION_TEXT ${g1o0} $(desc_g1o0)
   !insertmacro MUI_DESCRIPTION_TEXT ${ff} $(desc_ff)
   !insertmacro MUI_DESCRIPTION_TEXT ${dxvk} $(desc_dxvk)
-  !insertmacro MUI_DESCRIPTION_TEXT ${p2dfx} $(desc_p2dfx)
+  !insertmacro MUI_DESCRIPTION_TEXT ${vf} $(desc_vf)
+  !insertmacro MUI_DESCRIPTION_TEXT ${vp} $(desc_vp)
+  !insertmacro MUI_DESCRIPTION_TEXT ${mp} $(desc_mp)
 !insertmacro MUI_FUNCTION_DESCRIPTION_END

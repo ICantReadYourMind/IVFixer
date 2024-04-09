@@ -30,13 +30,10 @@ InstallDir $EXEDIR
 !insertmacro MUI_PAGE_INSTFILES
 
 ; The stuff to install
-Section "" ;No components page, name is not important
+Section ""
 	InitPluginsDir
 
-  ; Set output path to the installation directory.
   SetOutPath $EXEDIR\data
-  
-  ;RMDir /r "$EXEDIR\data"
   
   ReadINIStr $1 $EXEDIR\data\version.ini Version ver
   Delete version.ini
@@ -44,12 +41,12 @@ Section "" ;No components page, name is not important
   ReadINIStr $0 $EXEDIR\data\version.ini Version ver
   SetOutPath $EXEDIR
   ${If} $0 > $1
+  ;RMDir /r "$EXEDIR\data"
   NSISdl::download https://github.com/ICantReadYourMind/IVFixer/releases/latest/download/InstallerUpdate.zip InstallerUpdate.zip
   nsisunz::UnzipToLog InstallerUpdate.zip "$EXEDIR"
   Delete InstallerUpdate.zip
   ${EndIf}
-  
-  ; Put file there
+
   ExecWait "$EXEDIR\data\main.exe"
   
 SectionEnd
