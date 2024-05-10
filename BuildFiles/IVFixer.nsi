@@ -37,12 +37,12 @@ Section ""
   
   ReadINIStr $1 $EXEDIR\data\version.ini Version ver
   Delete version.ini
-  NSISdl::download https://github.com/ICantReadYourMind/IVFixer/releases/latest/download/version.ini version.ini
+  NScurl::http GET "https://github.com/ICantReadYourMind/IVFixer/releases/download/instupdate/version.ini" "$EXEDIR\data\version.ini" /CANCEL /RESUME /END
   ReadINIStr $0 $EXEDIR\data\version.ini Version ver
   SetOutPath $EXEDIR
   ${If} $0 > $1
   ;RMDir /r "$EXEDIR\data"
-  NSISdl::download https://github.com/ICantReadYourMind/IVFixer/releases/latest/download/InstallerUpdate.zip InstallerUpdate.zip
+  NScurl::http GET "https://github.com/ICantReadYourMind/IVFixer/releases/download/instupdate/InstallerUpdate.zip" "$EXEDIR\InstallerUpdate.zip" /CANCEL /RESUME /END
   nsisunz::UnzipToLog InstallerUpdate.zip "$EXEDIR"
   Delete InstallerUpdate.zip
   ${EndIf}
