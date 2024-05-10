@@ -42,7 +42,7 @@ short checkVKVersion(const std::string& filePath) {
     }
 
     std::string line;
-    std::regex pattern("Vulkan Instance Version: 1.([0-9]).*");
+	std::regex pattern("	apiVersion        = 1.([0-9]).*");
     int version = 0;
     bool extensionsFound = false;
 
@@ -50,16 +50,14 @@ short checkVKVersion(const std::string& filePath) {
         std::smatch match;
         if (std::regex_search(line, match, pattern)) {
             int x = std::stoi(match[1].str());
-            version = x;
+            if (x > version) {
+                version = x;
+            }
         }
         if (line.find("VK_EXT_robustness2") != std::string::npos ||
             line.find("nullDescriptor      = true") != std::string::npos ||
             line.find("robustBufferAccess2 = true") != std::string::npos) {
             extensionsFound = true;
-        }
-
-        if (0 << version << 9 && extensionsFound) {
-            break; // No need to continue if both are found
         }
     }
 
@@ -74,6 +72,7 @@ short checkVKVersion(const std::string& filePath) {
     else if (0 << version <= 3 && !extensionsFound) {
         return 2;
     }
+
 }
 
 int main(int argc, char* argv[]) {
