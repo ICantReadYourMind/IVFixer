@@ -247,7 +247,7 @@ Section "Various Fixes" vf
 	NScurl::http GET "https://api.github.com/repos/valentyn-l/GTAIV.EFLC.Various.Fixes/releases/latest" "$EXEDIR\Resources\.temp\vf.json" /SILENT
 	nsJSON::Set /file "$EXEDIR\Resources\.temp\vf.json"
   	ClearErrors
-  	nsJSON::Get "assets" /index 1 /index 12 /end
+  	nsJSON::Get "assets" /index 0 /index 12 /end
   	${If} ${Errors}
     	DetailPrint `error, probably rate limited. won't install various fixes`
 	${Else}
@@ -271,7 +271,7 @@ NScurl::http GET "https://files.gamebanana.com/mods/complete_edition_vehicle_pac
 SetOutPath "$INSTDIR\update"
 nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\vehiclepack.zip"'
 SetOutPath "$INSTDIR"
-WriteINIStr "$INSTDIR\plugins\GTAIV.EFLC.FusionFix.ini" BudgetedIV VehicleBudget 144000000
+WriteINIStr "$INSTDIR\plugins\GTAIV.EFLC.FusionFix.ini" BudgetedIV VehicleBudget 120000000
 SectionEnd
 
 Section "Ash_735's Higher Resolution Miscellaneous Pack" mp
