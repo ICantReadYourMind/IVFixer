@@ -198,7 +198,7 @@ SectionEnd
 	Pop $9
 	${If} $9 == "1"
 	${AndIfNot} $forceolddxvkstate == ${BST_CHECKED}
-		NScurl::http GET "https://api.github.com/repos/sTc2201/dxvk/releases/latest" "$EXEDIR\Resources\.temp\dxvk.json" /SILENT
+		NScurl::http GET "https://api.github.com/repos/doitsujin/dxvk/releases/latest" "$EXEDIR\Resources\.temp\dxvk.json" /SILENT
 		DetailPrint "Latest version of DXVK is supported, installing..."
 		nsJSON::Set /file "$EXEDIR\Resources\.temp\dxvk.json"
   		ClearErrors
@@ -210,18 +210,34 @@ SectionEnd
   		${EndIf}
 		NScurl::http GET "$0" "$EXEDIR\Resources\.temp\DXVK.tar.gz" /CANCEL /RESUME /END
 		SetOutPath "$EXEDIR\Resources\.temp"
-		nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\DXVK.tar.gz" -odxvk'
+		nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\DXVK.tar.gz"'
+		nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\dxvk\DXVK.tar" -odxvk'
 		SetOutPath "$INSTDIR"
-		CopyFiles "$EXEDIR\Resources\.temp\dxvk\x32\d3d9.dll" "$INSTDIR" 
+		
+		FindFirst $6 $7 "$EXEDIR\Resources\.temp\dxvk\*.*"
+		loopdxvk:
+		DetailPrint "$7"
+		Delete "$INSTDIR\d3d9.dll"
+		Delete "$INSTDIR\dxgi.dll"
+		CopyFiles "$EXEDIR\Resources\.temp\dxvk\$7\x32\d3d9.dll" "$INSTDIR"  
+		CopyFiles "$EXEDIR\Resources\.temp\dxvk\$7\x32\dxgi.dll" "$INSTDIR"  
+		StrCmp $7 "" donedxvk
+		FindNext $6 $7
+		Goto loopdxvk
+		donedxvk:
+		FindClose $6
 	${ElseIf} $9 == "2"
 	${OrIf} $forceolddxvkstate == ${BST_CHECKED}
 		DetailPrint "Latest version of DXVK is not supported, however older async version is. Installing..."
 		NScurl::http GET "https://github.com/Sporif/dxvk-async/releases/download/1.10.3/dxvk-async-1.10.3.tar.gz" "$EXEDIR\Resources\.temp\DXVK.tar.gz" /CANCEL /RESUME /END
 		SetOutPath "$EXEDIR\Resources\.temp"
 		nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\DXVK.tar.gz" -odxvk'
-		nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\dxvk\dxvk-async-1.10.3.tar" -odxvk'
+		nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\dxvk\DXVK.tar" -odxvk'
 		SetOutPath "$INSTDIR"
-		CopyFiles "$EXEDIR\Resources\.temp\dxvk\dxvk-async-1.10.3\x32\d3d9.dll" "$INSTDIR" 
+		Delete "$INSTDIR\d3d9.dll"
+		Delete "$INSTDIR\dxgi.dll"
+		CopyFiles "$EXEDIR\Resources\.temp\dxvk\dxvk-async-1.10.3\x32\d3d9.dll" "$INSTDIR"
+		CopyFiles "$EXEDIR\Resources\.temp\dxvk\dxvk-async-1.10.3\x32\dxgi.dll" "$INSTDIR" 
 	${Else}
 		Goto dxvkfail
 	${EndIf}
@@ -280,48 +296,43 @@ SectionEnd
 
 SectionGroup /e "Console Visuals"
 
-Section "Fusion Console Vegetation"
-NScurl::http GET "https://github.com/Tomasak/Console-Visuals/releases/download/release/Fusion.Console.Vegetation.zip" "$EXEDIR\Resources\.temp\Fusion.Console.Vegetation.zip" /CANCEL /RESUME /END
-nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\Fusion.Console.Vegetation.zip"'
-SectionEnd
-
 Section "Console Select Menu"
 NScurl::http GET "https://github.com/gennariarmando/iv-console-select-menu/releases/latest/download/ConsoleSelectMenuIV.zip" "$EXEDIR\Resources\.temp\Console.Select.Menu.zip" /CANCEL /RESUME /END
 nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\Console.Select.Menu.zip"'
 SectionEnd
 
 Section "Console Peds"
-NScurl::http GET "https://github.com/Tomasak/Console-Visuals/releases/download/release/Console.Peds.zip" "$EXEDIR\Resources\.temp\Console.Peds.zip" /CANCEL /RESUME /END
+NScurl::http GET "https://github.com/Tomasak/Console-Visuals/releases/download/latest/Console.Peds.zip" "$EXEDIR\Resources\.temp\Console.Peds.zip" /CANCEL /RESUME /END
 nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\Console.Peds.zip"'
 SectionEnd
 
 Section "Console Loading Screens"
-NScurl::http GET "https://github.com/Tomasak/Console-Visuals/releases/download/release/Console.Loading.Screens.zip" "$EXEDIR\Resources\.temp\Console.Loading.Screens.zip" /CANCEL /RESUME /END
+NScurl::http GET "https://github.com/Tomasak/Console-Visuals/releases/download/latest/Console.Loading.Screens.zip" "$EXEDIR\Resources\.temp\Console.Loading.Screens.zip" /CANCEL /RESUME /END
 nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\Console.Loading.Screens.zip"'
 SectionEnd
 
-Section "Console Lights"
-NScurl::http GET "https://github.com/Tomasak/Console-Visuals/releases/download/release/Console.Lights.zip" "$EXEDIR\Resources\.temp\Console.Lights.zip" /CANCEL /RESUME /END
-nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\Console.Lights.zip"'
+Section "Console TBoGT HUD Colors"
+NScurl::http GET "https://github.com/Tomasak/Console-Visuals/releases/download/latest/Console.TBoGT.Hud.Colors.zip" "$EXEDIR\Resources\.temp\Console.TBoGT.Hud.Colors.zip" /CANCEL /RESUME /END
+nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\Console.TBoGT.Hud.Colors.zip"'
 SectionEnd
 
 Section /o "Console HUD"
-NScurl::http GET "https://github.com/Tomasak/Console-Visuals/releases/download/release/Console.HUD.zip" "$EXEDIR\Resources\.temp\Console.HUD.zip" /CANCEL /RESUME /END
+NScurl::http GET "https://github.com/Tomasak/Console-Visuals/releases/download/latest/Console.Hud.zip" "$EXEDIR\Resources\.temp\Console.HUD.zip" /CANCEL /RESUME /END
 nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\Console.HUD.zip"'
 SectionEnd
 
 Section "Console Fences"
-NScurl::http GET "https://github.com/Tomasak/Console-Visuals/releases/download/release/Console.Fences.zip" "$EXEDIR\Resources\.temp\Console.Fences.zip" /CANCEL /RESUME /END
+NScurl::http GET "https://github.com/Tomasak/Console-Visuals/releases/download/latest/Console.Fences.zip" "$EXEDIR\Resources\.temp\Console.Fences.zip" /CANCEL /RESUME /END
 nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\Console.Fences.zip"'
 SectionEnd
 
 Section "Console Clothing"
-NScurl::http GET "https://github.com/Tomasak/Console-Visuals/releases/download/release/Console.Clothing.zip" "$EXEDIR\Resources\.temp\Console.Clothing.zip" /CANCEL /RESUME /END
+NScurl::http GET "https://github.com/Tomasak/Console-Visuals/releases/download/latest/Console.Clothing.zip" "$EXEDIR\Resources\.temp\Console.Clothing.zip" /CANCEL /RESUME /END
 nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\Console.Clothing.zip"'
 SectionEnd
 
 Section "Console Anims"
-NScurl::http GET "https://github.com/Tomasak/Console-Visuals/releases/download/release/Console.Anims.zip" "$EXEDIR\Resources\.temp\Console.Anims.zip" /CANCEL /RESUME /END
+NScurl::http GET "https://github.com/Tomasak/Console-Visuals/releases/download/latest/Console.Anims.zip" "$EXEDIR\Resources\.temp\Console.Anims.zip" /CANCEL /RESUME /END
 nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\Console.Anims.zip"'
 SectionEnd
 
@@ -330,32 +341,14 @@ SectionGroupEnd
 SectionGroup /e "Radio Restoration" grp1
 Section "-Base Files" radiorestorer
 	SetOutPath $INSTDIR
-   ;Archive hash check
 	
-	redownload:
+	RMDir /r "$EXEDIR\Resources\Radio Restorer"
+	CreateDirectory "$EXEDIR\Resources\Radio Restorer"
 	
-	RMDir /r "$EXEDIR\Resources\Radio Restorer\"
-	
-	NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/data/data1.dat" "$EXEDIR\Resources\Radio Restorer\data1.dat" /CANCEL /RESUME /END
-	NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/data/patch1.dat" "$EXEDIR\Resources\Radio Restorer\patch1.dat" /CANCEL /RESUME /END
-	NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/data/patch2.dat" "$EXEDIR\Resources\Radio Restorer\patch2.dat" /CANCEL /RESUME /END
-	NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/data/hashes.ini" "$EXEDIR\Resources\Radio Restorer\hashes.ini" /CANCEL /RESUME /END
-  
-	; DetailPrint "Checking hashes of archives..."
-	; FindFirst $6 $7 "$EXEDIR\Resources\Radio Restorer\*.dat"
-	; loop:
-	; StrCmp $7 "" done
-	; HashInfo::GetFileCRCHash "CRC-32" "$EXEDIR\Resources\Radio Restorer\$7"
-	; Pop $8
-	; ReadINIStr $9 "$EXEDIR\Resources\Radio Restorer\hashes.ini" "Archives" "$7"
-	; ${If} $9 != $8
-		; MessageBox MB_RETRYCANCEL "Hashes of DATs incorrect, press yes to redownload archives or cancel to cancel the installation of radio restorer" IDRETRY redownload IDCANCEL installerfail_1
-	; ${EndIf}
-	; DetailPrint "Hash of $7 is $8 [CORRECT]"
-	; FindNext $6 $7
-	; Goto loop
-	; done:
-	; FindClose $0
+	NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/iv-data/data1.dat" "$EXEDIR\Resources\Radio Restorer\data1.dat" /CANCEL /RESUME /END
+	NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/iv-data/patch1.dat" "$EXEDIR\Resources\Radio Restorer\patch1.dat" /CANCEL /RESUME /END
+	NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/iv-data/patch2.dat" "$EXEDIR\Resources\Radio Restorer\patch2.dat" /CANCEL /RESUME /END
+	NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/iv-data/hashes.ini" "$EXEDIR\Resources\Radio Restorer\hashes.ini" /CANCEL /RESUME /END
 	
   ${If} ${FileExists} "$INSTDIR\update\pc\audio\config\game.dat16"
   MessageBox MB_YESNO "Radio files detected in overload folder! It is likely an older version of the Radio Restoration mod was installed. If you want to remove old files, press yes. WARNING: This will also remove previously installed audio mods." IDYES true IDNO false
@@ -363,15 +356,22 @@ Section "-Base Files" radiorestorer
 	RMDir /r "$INSTDIR\update\pc\audio\"
 	RMDir /r "$INSTDIR\update\tlad\pc\audio\"
 	RMDir /r "$INSTDIR\update\tbogt\pc\audio\"
+	  FindFirst $6 $7 "$INSTDIR\update\common\text\*RR.gxt"
+	  loopgxt1:
+      StrCmp $7 "" donegxt1
+      Delete "$INSTDIR\update\common\text\$7"
+      FindNext $6 $7
+      Goto loopgxt1
+      donegxt1:
+      FindClose $0
 	DetailPrint "Old files successfully deleted!"
 	Goto next
   false:
 	DetailPrint "Keeping old files may cause issues in the future."
   ${EndIf}
+  next:
   
     nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\Radio Restorer\data1.dat"'
-  
-  next:
   
   HashInfo::GetFileCRCHash "CRC-32" "$INSTDIR\pc\audio\sfx\radio_beat_95.rpf"
   Pop $3
@@ -431,10 +431,20 @@ Section "-Base Files" radiorestorer
   RMDir /r $INSTDIR\update\pc\audio
   RMDir /r $INSTDIR\update\tlad\pc\audio
   RMDir /r $INSTDIR\update\tbogt\pc\audio
-  RMDir /r $INSTDIR\update\common\text
+
+  FindFirst $6 $7 "$INSTDIR\update\common\text\*RR.gxt"
+  loopgxt:
+  StrCmp $7 "" donegxt
+  Delete "$INSTDIR\update\common\text\$7"
+  FindNext $6 $7
+  Goto loopgxt
+  donegxt:
+  FindClose $0
+  
   Delete $INSTDIR\update\tbogt\pc\e2_radio.xml
   Delete $INSTDIR\update\tbogt\pc\e2_audio.xml
   Delete $INSTDIR\update\tlad\pc\e1_radio.xml
+  Delete $INSTDIR\update\tlad\pc\e1_audio.xml
   StrCpy $rrInstallStatus "0"
   DetailPrint "Radio Restorer nstallation failed. All files related to radio restorer have been deleted. This has also deleted any previous audio/radio mods you may have had..."
   
