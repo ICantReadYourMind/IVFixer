@@ -34,8 +34,6 @@ Fusion Team -- FusionFix, Console Visuals, Radio Restorer
 
 ThirteenAG -- Project2DFX
 
-sTc2201 -- Patched DXVK for GTA IV
-
 DXVK team -- DXVK
 
 Ash_735 -- Higher resolution vehicle and miscellaneous packs
