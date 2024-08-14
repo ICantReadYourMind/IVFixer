@@ -668,8 +668,8 @@ FunctionEnd
 LangString desc_g1o0 ${LANG_ENGLISH} "Skips installation of the radio restorer."
 LangString desc_g1o1 ${LANG_ENGLISH} "This option restores all songs cut in 2018. Keeps only pre-cut Vladivostok playlist."
 LangString desc_g1o2 ${LANG_ENGLISH} "This option keeps post-cut Vladivostok songs alongside pre-cut one."
-LangString desc_g1o3 ${LANG_ENGLISH} "This option restores 4 cut songs with working DJ lines"
-LangString desc_g1o4 ${LANG_ENGLISH} "Removes IV songs in Episodes on shared radios and vice versa. Makes interiors and lap dance in EFLC play same songs/radios as vanilla EFLC. DOES NOT REMOVE IV EXCLUSIVE STATIONS IN EPISODES AND VICE VERSA"
+LangString desc_g1o3 ${LANG_ENGLISH} "This option restores 4 cut songs with working DJ lines."
+LangString desc_g1o4 ${LANG_ENGLISH} "Removes IV songs in Episodes on shared radios and vice versa. Makes interiors and lap dance in EFLC play same songs/radios as vanilla EFLC. DOES NOT REMOVE IV EXCLUSIVE STATIONS IN EPISODES AND VICE VERSA."
 LangString desc_ff ${LANG_ENGLISH} "FusionFix is a modification for the game that fixes multiple game bugs, adds a file overloader (required for this mod) and more."
 LangString desc_dxvk ${LANG_ENGLISH} "DXVK translates DirectX calls to Vulkan. It has been reported to drastically improve performance in GTA IV. However, this isn't the case for all systems, so it might not work."
 LangString desc_p2dfx ${LANG_ENGLISH} "Project2DFX is a plugin that adds an LOD-light effect to game's world, making the LOD-world look much better."
@@ -685,6 +685,7 @@ LangString desc_mp ${LANG_ENGLISH} "This mod adds higher resolution textures to 
   !insertmacro MUI_DESCRIPTION_TEXT ${g1o0} $(desc_g1o0)
   !insertmacro MUI_DESCRIPTION_TEXT ${ff} $(desc_ff)
   !insertmacro MUI_DESCRIPTION_TEXT ${dxvk} $(desc_dxvk)
+  !insertmacro MUI_DESCRIPTION_TEXT ${p2dfx} $(desc_p2dfx)
   !insertmacro MUI_DESCRIPTION_TEXT ${vf} $(desc_vf)
   !insertmacro MUI_DESCRIPTION_TEXT ${vp} $(desc_vp)
   !insertmacro MUI_DESCRIPTION_TEXT ${mp} $(desc_mp)
