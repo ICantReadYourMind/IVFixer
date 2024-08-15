@@ -36,6 +36,6 @@ ThirteenAG -- Project2DFX
 
 DXVK team -- DXVK
 
-Ash_735 -- Higher resolution vehicle and miscellaneous packs
+Ash_735 -- Higher resolution vehicle and miscellaneous packs, radio logos
 
 Attramet and others -- Various Fixes
