@@ -210,7 +210,7 @@ SectionEnd
   		${EndIf}
 		NScurl::http GET "$0" "$EXEDIR\Resources\.temp\DXVK.tar.gz" /CANCEL /RESUME /END
 		SetOutPath "$EXEDIR\Resources\.temp"
-		nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\DXVK.tar.gz"'
+		nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\DXVK.tar.gz" -odxvk'
 		nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\dxvk\DXVK.tar" -odxvk'
 		SetOutPath "$INSTDIR"
 		
