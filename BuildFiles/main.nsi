@@ -294,6 +294,11 @@ NScurl::http GET "https://files.gamebanana.com/mods/ash_hires_misc11.zip" "$EXED
 nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\miscpack.zip"'
 SectionEnd
 
+Section "Ash_735's Higher Resolution Radio Logos" rl
+NScurl::http GET "https://files.gamebanana.com/mods/complete_edition_higher_resolution_radio_logos.zip" "$EXEDIR\Resources\.temp\radiologos.zip" /CANCEL /RESUME /END
+nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\radiologos.zip"'
+SectionEnd
+
 SectionGroup /e "Console Visuals"
 
 Section "Console Select Menu"
@@ -446,7 +451,7 @@ Section "-Base Files" radiorestorer
   Delete $INSTDIR\update\tlad\pc\e1_radio.xml
   Delete $INSTDIR\update\tlad\pc\e1_audio.xml
   StrCpy $rrInstallStatus "0"
-  DetailPrint "Radio Restorer nstallation failed. All files related to radio restorer have been deleted. This has also deleted any previous audio/radio mods you may have had..."
+  DetailPrint "Radio Restorer installation failed. All files related to radio restorer have been deleted. This has also deleted any previous audio/radio mods you may have had..."
   
   downgradeend:
 SectionEnd
@@ -676,6 +681,7 @@ LangString desc_p2dfx ${LANG_ENGLISH} "Project2DFX is a plugin that adds an LOD-
 LangString desc_vf ${LANG_ENGLISH} "Various Fixes is a mod that fixes various bugs in the game."
 LangString desc_vp ${LANG_ENGLISH} "This mod adds higher resolution textures to all the vehicles in the game and its DLCs."
 LangString desc_mp ${LANG_ENGLISH} "This mod adds higher resolution textures to various objects such as vending machines."
+LangString desc_rl ${LANG_ENGLISH} "This mod adds higher resolution textures to all the radio station logos."
 
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
   !insertmacro MUI_DESCRIPTION_TEXT ${g1o1} $(desc_g1o1)
@@ -689,4 +695,5 @@ LangString desc_mp ${LANG_ENGLISH} "This mod adds higher resolution textures to 
   !insertmacro MUI_DESCRIPTION_TEXT ${vf} $(desc_vf)
   !insertmacro MUI_DESCRIPTION_TEXT ${vp} $(desc_vp)
   !insertmacro MUI_DESCRIPTION_TEXT ${mp} $(desc_mp)
+  !insertmacro MUI_DESCRIPTION_TEXT ${rl} $(desc_rl)
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
