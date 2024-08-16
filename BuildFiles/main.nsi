@@ -214,11 +214,11 @@ SectionEnd
 		nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\dxvk\DXVK.tar" -odxvk'
 		SetOutPath "$INSTDIR"
 		
+		Delete "$INSTDIR\d3d9.dll"
+		Delete "$INSTDIR\dxgi.dll"
 		FindFirst $6 $7 "$EXEDIR\Resources\.temp\dxvk\*.*"
 		loopdxvk:
 		DetailPrint "$7"
-		Delete "$INSTDIR\d3d9.dll"
-		Delete "$INSTDIR\dxgi.dll"
 		CopyFiles "$EXEDIR\Resources\.temp\dxvk\$7\x32\d3d9.dll" "$INSTDIR"  
 		CopyFiles "$EXEDIR\Resources\.temp\dxvk\$7\x32\dxgi.dll" "$INSTDIR"  
 		StrCmp $7 "" donedxvk
