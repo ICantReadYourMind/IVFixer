@@ -210,18 +210,23 @@ SectionEnd
   		${EndIf}
 		NScurl::http GET "$0" "$EXEDIR\Resources\.temp\DXVK.tar.gz" /CANCEL /RESUME /END
 		SetOutPath "$EXEDIR\Resources\.temp"
-		nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\DXVK.tar.gz" -odxvk'
-		nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\dxvk\DXVK.tar" -odxvk'
+		nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\DXVK.tar.gz"'
+		nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\DXVK.tar" -odxvk'
 		SetOutPath "$INSTDIR"
 		
 		Delete "$INSTDIR\d3d9.dll"
 		Delete "$INSTDIR\dxgi.dll"
 		FindFirst $6 $7 "$EXEDIR\Resources\.temp\dxvk\*.*"
 		loopdxvk:
+		StrCmp $7 "" donedxvk
+		StrCmp $7 "." skipdxvk
+		StrCmp $7 ".." skipdxvk
 		DetailPrint "$7"
 		CopyFiles "$EXEDIR\Resources\.temp\dxvk\$7\x32\d3d9.dll" "$INSTDIR"  
-		CopyFiles "$EXEDIR\Resources\.temp\dxvk\$7\x32\dxgi.dll" "$INSTDIR"  
-		StrCmp $7 "" donedxvk
+		CopyFiles "$EXEDIR\Resources\.temp\dxvk\$7\x32\dxgi.dll" "$INSTDIR"
+		FindNext $6 $7
+		Goto loopdxvk
+		skipdxvk:
 		FindNext $6 $7
 		Goto loopdxvk
 		donedxvk:
@@ -231,8 +236,8 @@ SectionEnd
 		DetailPrint "Latest version of DXVK is not supported, however older async version is. Installing..."
 		NScurl::http GET "https://github.com/Sporif/dxvk-async/releases/download/1.10.3/dxvk-async-1.10.3.tar.gz" "$EXEDIR\Resources\.temp\DXVK.tar.gz" /CANCEL /RESUME /END
 		SetOutPath "$EXEDIR\Resources\.temp"
-		nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\DXVK.tar.gz" -odxvk'
-		nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\dxvk\DXVK.tar" -odxvk'
+		nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\DXVK.tar.gz"'
+		nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\DXVK.tar" -odxvk'
 		SetOutPath "$INSTDIR"
 		Delete "$INSTDIR\d3d9.dll"
 		Delete "$INSTDIR\dxgi.dll"
