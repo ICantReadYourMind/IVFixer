@@ -284,7 +284,6 @@ Section "Project2DFX" p2dfx
 	SetOutPath "$INSTDIR\plugins"
 	nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\p2dfx.zip"'
 	SetOutPath $INSTDIR
-	Delete "$INSTDIR\plugins\readme.txt"
 SectionEnd
 
 Section "Ash_735's Higher Resolution Vehicle Pack" vp
