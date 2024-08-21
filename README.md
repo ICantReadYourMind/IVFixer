@@ -25,6 +25,7 @@ https://forums.winamp.com/forum/developer-center/nsis-discussion/312323-nsis-on-
 
 # Thanks to:
 
+2Col - Various additions and important fixes
 
 nastyyaboi -- installer banner
 
