@@ -355,9 +355,6 @@ Section "-Base Files" radiorestorer
 	CreateDirectory "$EXEDIR\Resources\Radio Restorer"
 	
 	NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/iv-data/data1.dat" "$EXEDIR\Resources\Radio Restorer\data1.dat" /CANCEL /RESUME /END
-	NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/iv-data/patch1.dat" "$EXEDIR\Resources\Radio Restorer\patch1.dat" /CANCEL /RESUME /END
-	NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/iv-data/patch2.dat" "$EXEDIR\Resources\Radio Restorer\patch2.dat" /CANCEL /RESUME /END
-	NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/iv-data/hashes.ini" "$EXEDIR\Resources\Radio Restorer\hashes.ini" /CANCEL /RESUME /END
 	
   ${If} ${FileExists} "$INSTDIR\update\pc\audio\config\game.dat16"
   MessageBox MB_YESNO "Radio files detected in overload folder! It is likely an older version of the Radio Restoration mod was installed. If you want to remove old files, press yes. WARNING: This will also remove previously installed audio mods." IDYES true IDNO false
@@ -382,81 +379,10 @@ Section "-Base Files" radiorestorer
   
     nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\Radio Restorer\data1.dat"'
   
-  HashInfo::GetFileCRCHash "CRC-32" "$INSTDIR\pc\audio\sfx\radio_beat_95.rpf"
-  Pop $3
-  HashInfo::GetFileCRCHash "CRC-32" "$INSTDIR\pc\audio\sfx\radio_ny_classics.rpf"
-  Pop $4
-  
-  ${If} $3 != "FA77D2CB"
-	MessageBox MB_RETRYCANCEL "CRC of one or more radio RPF files is incorrect! Please select an unmodded game folder." IDRETRY retryfolder IDCANCEL installerfail_1
-	DetailPrint "CRC of one or more RPF files is incorrect!"
-  ${EndIf}
-  
-  ${If} $4 != "76BFB272"
-	MessageBox MB_RETRYCANCEL "CRC of one or more radio RPF files is incorrect! Please select an unmodded game folder." IDRETRY retryfolder IDCANCEL installerfail_1
-	DetailPrint "CRC of one or more RPF files is incorrect!"
-  ${EndIf}
-  
-  retrydeltapatch:
-  DetailPrint "Patching radio_beat_95.rpf..."
-  DetailPrint "Patching radio_ny_classics.rpf..."
-  vpatch::vpatchfile "$EXEDIR\Resources\Radio Restorer\patch1.dat" "$INSTDIR\pc\audio\sfx\radio_beat_95.rpf" "$INSTDIR\update\pc\audio\sfx\radio_beat_95.rpf"
-  vpatch::vpatchfile "$EXEDIR\Resources\Radio Restorer\patch2.dat" "$INSTDIR\pc\audio\sfx\radio_ny_classics.rpf" "$INSTDIR\update\pc\audio\sfx\radio_ny_classics.rpf"
-  
-  ReadINIStr $8 "$EXEDIR\Resources\Radio Restorer\hashes.ini" "RPFs" "radio_beat_95.rpf"
-  HashInfo::GetFileCRCHash "CRC-32" "$INSTDIR\update\pc\audio\sfx\radio_beat_95.rpf"
-  Pop $9
-  ${If} "$8" != "$9"
-	MessageBox MB_RETRYCANCEL "CRC of one or more patched RPF files is incorrect!" IDRETRY retrydeltapatch IDCANCEL installerfail_2
-	DetailPrint "CRC of one or more patched RPF files is incorrect!"
-  ${EndIf}
-  DetailPrint "Hash of radio_beat_95.rpf = $8 [CORRECT]"
-  
-  ReadINIStr $8 "$EXEDIR\Resources\Radio Restorer\hashes.ini" "RPFs" "radio_ny_classics.rpf"
-  HashInfo::GetFileCRCHash "CRC-32" "$INSTDIR\update\pc\audio\sfx\radio_ny_classics.rpf"
-  Pop $9
-  ${If} "$8" != "$9"
-	MessageBox MB_RETRYCANCEL "CRC of one or more patched RPF files is incorrect!" IDRETRY retrydeltapatch IDCANCEL installerfail_2
-	DetailPrint "CRC of one or more patched RPF files is incorrect!"
-  ${EndIf}
-  DetailPrint "Hash of radio_ny_classics.rpf = $8 [CORRECT]"
   StrCpy $rrInstallStatus "1"
   
   Goto downgradeend
-  
-  installerfail_1:
-  DetailPrint "Cancelling installation."
-  StrCpy $rrInstallStatus "0"
-  Goto downgradeend
-  
-  retryfolder:
-  StrCpy $R9 -1
-  Call RelGotoPage
-  Abort
-
-  installerfail_2:
-  DetailPrint "Installation cancelled, deleting all related files..."
-  RMDir /r $EXEDIR\Resources\.temp
-  RMDir /r $INSTDIR\update\pc\audio
-  RMDir /r $INSTDIR\update\tlad\pc\audio
-  RMDir /r $INSTDIR\update\tbogt\pc\audio
-
-  FindFirst $6 $7 "$INSTDIR\update\common\text\*RR.gxt"
-  loopgxt:
-  StrCmp $7 "" donegxt
-  Delete "$INSTDIR\update\common\text\$7"
-  FindNext $6 $7
-  Goto loopgxt
-  donegxt:
-  FindClose $0
-  
-  Delete $INSTDIR\update\tbogt\pc\e2_radio.xml
-  Delete $INSTDIR\update\tbogt\pc\e2_audio.xml
-  Delete $INSTDIR\update\tlad\pc\e1_radio.xml
-  Delete $INSTDIR\update\tlad\pc\e1_audio.xml
-  StrCpy $rrInstallStatus "0"
-  DetailPrint "Radio Restorer installation failed. All files related to radio restorer have been deleted. This has also deleted any previous audio/radio mods you may have had..."
-  
+    
   downgradeend:
 SectionEnd
 
@@ -479,28 +405,28 @@ Section "-Options" opRR
 		${If} ${SectionIsSelected} ${g1o1}
 		${AndIf} ${SectionIsSelected} ${g1o2}
 		${AndIf} ${SectionIsSelected} ${g1o3}
-			NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/data/opALL.dat" "$EXEDIR\Resources\Radio Restorer\opALL.dat" /CANCEL /RESUME /END
+			NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/iv-data/opALL.dat" "$EXEDIR\Resources\Radio Restorer\opALL.dat" /CANCEL /RESUME /END
 			nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\Radio Restorer\opALL.dat"'
 		${EndIf}
 		
 		${If} ${SectionIsSelected} ${g1o1}
 		${AndIf} ${SectionIsSelected} ${g1o2}
 		${AndIfNot} ${SectionIsSelected} ${g1o3}
-		NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/data/opCLASSIC.dat" "$EXEDIR\Resources\Radio Restorer\opCLASSIC.dat" /CANCEL /RESUME /END
+		NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/iv-data/opCLASSIC.dat" "$EXEDIR\Resources\Radio Restorer\opCLASSIC.dat" /CANCEL /RESUME /END
 			nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\Radio Restorer\opCLASSIC.dat"'
 		${EndIf}
 		
 		${If} ${SectionIsSelected} ${g1o1}
 		${AndIfNot} ${SectionIsSelected} ${g1o2}
 		${AndIfNot} ${SectionIsSelected} ${g1o3}
-			NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/data/opVANILLA.dat" "$EXEDIR\Resources\Radio Restorer\opVANILLA.dat" /CANCEL /RESUME /END
+			NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/iv-data/opVANILLA.dat" "$EXEDIR\Resources\Radio Restorer\opVANILLA.dat" /CANCEL /RESUME /END
 			nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\Radio Restorer\opVANILLA.dat"'
 		${EndIf}
 		
 		${If} ${SectionIsSelected} ${g1o1}
 		${AndIf} ${SectionIsSelected} ${g1o3}
 		${AndIfNot} ${SectionIsSelected} ${g1o2}
-			NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/data/opVANILLABETA.dat" "$EXEDIR\Resources\Radio Restorer\opVANILLABETA.dat" /CANCEL /RESUME /END
+			NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/iv-data/opVANILLABETA.dat" "$EXEDIR\Resources\Radio Restorer\opVANILLABETA.dat" /CANCEL /RESUME /END
 			nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\Radio Restorer\opVANILLABETA.dat"'
 		${EndIf}
 	${EndIf}
@@ -508,13 +434,13 @@ Section "-Options" opRR
 SectionEnd
 
 Section /o "Split radios" g1o4
-	NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/data/opSPLITbase.dat" "$EXEDIR\Resources\Radio Restorer\opSPLITbase.dat" /CANCEL /RESUME /END
+	NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/iv-data/opSPLITbase.dat" "$EXEDIR\Resources\Radio Restorer\opSPLITbase.dat" /CANCEL /RESUME /END
 	nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\Radio Restorer\opSPLITbase.dat"'
 	${If} ${SectionIsSelected} ${g1o3}
-		NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/data/opSPLITBETA.dat" "$EXEDIR\Resources\Radio Restorer\opSPLITBETA.dat" /CANCEL /RESUME /END
+		NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/iv-data/opSPLITBETA.dat" "$EXEDIR\Resources\Radio Restorer\opSPLITBETA.dat" /CANCEL /RESUME /END
 		nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\Radio Restorer\opSPLITBETA.dat"'
 	${Else}
-		NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/data/opSPLITVANILLA.dat" "$EXEDIR\Resources\Radio Restorer\opSPLITVANILLA.dat" /CANCEL /RESUME /END
+		NScurl::http GET "https://github.com/Tomasak/GTA-Downgraders/releases/download/iv-data/opSPLITVANILLA.dat" "$EXEDIR\Resources\Radio Restorer\opSPLITVANILLA.dat" /CANCEL /RESUME /END
 		nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\Radio Restorer\opSPLITVANILLA.dat"'
 	${EndIf}
 SectionEnd
