@@ -287,7 +287,7 @@ Section "Project2DFX" p2dfx
 SectionEnd
 
 Section "Ash_735's Higher Resolution Vehicle Pack" vp
-NScurl::http GET "https://files.gamebanana.com/mods/iv_ce_vehicle_pack21.zip" "$EXEDIR\Resources\.temp\vehiclepack.zip" /CANCEL /RESUME /END
+NScurl::http GET "https://files.gamebanana.com/mods/iv_ce_vehicle_pack21c.zip" "$EXEDIR\Resources\.temp\vehiclepack.zip" /CANCEL /RESUME /END
 SetOutPath "$INSTDIR"
 nsExec::Exec '"$EXEDIR\Resources\External\7za.exe" x "$EXEDIR\Resources\.temp\vehiclepack.zip" -y'
 WriteINIStr "$INSTDIR\plugins\GTAIV.EFLC.FusionFix.ini" BudgetedIV VehicleBudget 120000000
